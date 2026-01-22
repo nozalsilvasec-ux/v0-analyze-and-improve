@@ -180,11 +180,26 @@ const TemplateCard = memo(
               <img
                 src={(() => {
                   if (template.thumbnail_url) return template.thumbnail_url
+                  
                   const category = (template.category || "").toLowerCase().trim()
                   const validCategories = ["product", "fundraising", "consulting", "design", "sales", "marketing", "engineering"]
+                  
+                  // Try exact match first
                   if (validCategories.includes(category)) {
                     return `/templates/${category}-template.jpg`
                   }
+                  
+                  // For PREMIUM templates, try to extract category from name if not matched
+                  if (isPremium && template.name) {
+                    const nameLower = template.name.toLowerCase()
+                    for (const cat of validCategories) {
+                      if (nameLower.includes(cat)) {
+                        return `/templates/${cat}-template.jpg`
+                      }
+                    }
+                  }
+                  
+                  // Default fallback
                   return "/templates/default-template.jpg"
                 })()}
                 alt={template.name}
